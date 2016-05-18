@@ -30,22 +30,46 @@ public class WikiPhilosophy {
 	public static void main(String[] args) throws IOException {
 		
         // some example code to get you started
+		Boolean done = false;
 
 		String url = "https://en.wikipedia.org/wiki/Java_(programming_language)";
-		Elements paragraphs = wf.fetchWikipedia(url);
+		while(!done){
+			if(done)
+				break;
+			Elements paragraphs = wf.fetchWikipedia(url);
+			Element firstPara = paragraphs.get(0);
+			
+			//Elements links = firstPara.getElementsByTag("a");
 
-		Element firstPara = paragraphs.get(0);
-		
-		Iterable<Node> iter = new WikiNodeIterable(firstPara);
-		for (Node node: iter) {
-			if (node instanceof TextNode) {
-				System.out.print(node);
+			Iterable<Node> iter = new WikiNodeIterable(firstPara);
+			
+			for (Node n: iter) {
+				if(isValid(n,url)){
+					Character first = n.childNode(0).toString().charAt(0);
+					if(first.isLowerCase(first)){
+						url="https://en.wikipedia.org";
+						url=url.concat(n.attr("href"));
+						if(n.childNode(0).toString().equals("philosophy"))
+							done = true;
+						break;
+					}
+				}
+					
 			}
-        }
-
-        // the following throws an exception so the test fails
-        // until you update the code
-        String msg = "Complete this lab by adding your code and removing this statement.";
-        throw new UnsupportedOperationException(msg);
+		}
+       System.out.println(url);
 	}
+	
+	private static boolean isValid(Node n,String currUrl){
+		if(!(n.hasAttr("href")))
+			return false;
+		if(n.attr("href").equals(currUrl))
+			return false;
+		if(n.hasAttr("i"))
+			return false;
+		return true;
+		
+		
+	}
+	
 }
